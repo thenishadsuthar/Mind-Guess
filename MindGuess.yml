@@ -1,0 +1,35 @@
+name: OpenAI Assistant Workflow
+
+on:
+  # Trigger whenever an issue or pull request is opened
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  openai-assistant:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code (optional, depends on your use case)
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Call an OpenAI-based GitHub Action (if available)
+      # Note: Currently, these are third-party actions (search for custom ones on GitHub Marketplace)
+      - name: Generate AI Response
+        run: |
+          curl -X POST https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "model": "gpt-3.5-turbo",
+              "messages": [
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "Summarize the following pull request: ${{ github.event.pull_request.body }}"}
+              ]
+            }'
+
+      # 3. Do something with the response
+      # Example: Save to a file, append to PR comments, or send to Slack
